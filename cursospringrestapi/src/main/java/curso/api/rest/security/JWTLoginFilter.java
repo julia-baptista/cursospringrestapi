@@ -4,8 +4,6 @@ import java.io.IOException;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -20,20 +18,18 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import curso.api.rest.model.Usuario;
 
-
-
-/*Estabelece nosso gerenciador de Token*/
+/*Estabelece o nosso gerenciador de Token*/
 public class JWTLoginFilter extends AbstractAuthenticationProcessingFilter {
 
-
-	/*Configurando o gerenciador de autenticação*/
+	/*Configurando o gerenciador de autenticacao*/
 	protected JWTLoginFilter(String url, AuthenticationManager authenticationManager) {
-		
+       
 		/*Obriga a autenticar a URL*/
 		super(new AntPathRequestMatcher(url));
+       
+       /*Gerenciador de autenticacao*/
+       setAuthenticationManager(authenticationManager);
 		
-		/*Gerenciador de autenticação*/
-		setAuthenticationManager(authenticationManager);
 	}
 
 	/*Retorna o usuário ao processar a autenticação*/
@@ -42,29 +38,33 @@ public class JWTLoginFilter extends AbstractAuthenticationProcessingFilter {
 			throws AuthenticationException, IOException, ServletException {
 		
 		/*Está pegando o token para validar*/
-		Usuario user = new ObjectMapper()
-				.readValue(request.getInputStream(), Usuario.class);
-
-		/*Retorna o usuário login, senha e acessos*/
-		return getAuthenticationManager()
-				.authenticate(new UsernamePasswordAuthenticationToken(user.getLogin(), user.getSenha()));
+		Usuario user = new ObjectMapper().
+				readValue(request.getInputStream(), Usuario.class);
+		
+		/*Autentica o usuário e retorna o usuario login, senha e acessos*/
+		return getAuthenticationManager().
+				authenticate(new UsernamePasswordAuthenticationToken(user.getLogin(), user.getSenha()));
 	}
-	
+	 
+	// Este método cria um token JWT e o adiciona ao cabeçalho da resposta se a autenticação for válida.
 	@Override
 	protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
 			Authentication authResult) throws IOException, ServletException {
 		
 		new JWTTokenAutenticacaoService().addAuthentication(response, authResult.getName());
+	
 	}
-
-
-	@Override
-	public void doFilter(ServletRequest request, ServletResponse response,
-			FilterChain chain) throws IOException, ServletException {
-		// TODO Auto-generated method stub
-		
-	}
-
-
 
 }
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	

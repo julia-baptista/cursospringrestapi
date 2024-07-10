@@ -34,26 +34,26 @@ public class IndexController {
 //		return new ResponseEntity("Olá usuário " + nome + " REST String Boot", HttpStatus.OK);
 //	}
 	
-	@GetMapping(value ="/{id}/relatoriopdf", produces = "application/json")
-	public ResponseEntity<Usuario> relatorio(@PathVariable(value = "id") Long id) {
-		
-		Optional<Usuario> usuario = usuarioRepository.findById(id);
-		
-		return new ResponseEntity<Usuario>(usuario.get(), HttpStatus.OK);
-	}
+//	@GetMapping(value ="/{id}/relatoriopdf", produces = "application/json")
+//	public ResponseEntity<Usuario> relatorio(@PathVariable(value = "id") Long id) {
+//		
+//		Optional<Usuario> usuario = usuarioRepository.findById(id);
+//		
+//		return new ResponseEntity<Usuario>(usuario.get(), HttpStatus.OK);
+//	}
 	
 	
 	@GetMapping(value ="/{id}", produces = "application/json")
-	public ResponseEntity<Usuario> init(@PathVariable(value = "id") Long id) {
+	public ResponseEntity<Usuario> usuario(@PathVariable(value = "id") Long id) {
 		
 		Optional<Usuario> usuario = usuarioRepository.findById(id);
 		
 		return new ResponseEntity<Usuario>(usuario.get(), HttpStatus.OK);
 	}
 	
-	
+	@CrossOrigin(origins = "*")
 	@GetMapping(value ="/", produces = "application/json")
-	public ResponseEntity<List<Usuario>> usuario() {
+	public ResponseEntity<List<Usuario>> usuarios() {
 		
 		List<Usuario> list = (List<Usuario>) usuarioRepository.findAll();
 		

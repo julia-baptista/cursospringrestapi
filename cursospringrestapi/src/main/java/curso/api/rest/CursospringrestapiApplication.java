@@ -37,8 +37,8 @@ public class CursospringrestapiApplication implements WebMvcConfigurer {
 		
 		//habilitando todos os endpoints com métodos de POST ou PUT do controller de usuario
 		registry.addMapping("/usuario/**")
-		.allowedMethods("POST", "PUT")
-		.allowedOrigins("www.jdevtreinamento.com.br", "www.cliente80.com.br");
+		.allowedMethods("POST", "PUT", "DELETE", "GET")
+		.allowedOrigins("*");
 		
 		
 	}

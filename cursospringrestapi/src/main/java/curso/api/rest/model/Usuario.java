@@ -22,21 +22,6 @@ import javax.persistence.UniqueConstraint;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-//import jakarta.persistence.CascadeType;
-//import jakarta.persistence.ConstraintMode;
-//import jakarta.persistence.Entity;
-//import jakarta.persistence.FetchType;
-//import jakarta.persistence.ForeignKey;
-//import jakarta.persistence.GeneratedValue;
-//import jakarta.persistence.GenerationType;
-//import jakarta.persistence.Id;
-//import jakarta.persistence.JoinColumn;
-//import jakarta.persistence.JoinColumns;
-//import jakarta.persistence.JoinTable;
-//import jakarta.persistence.OneToMany;
-//import jakarta.persistence.SequenceGenerator;
-//import jakarta.persistence.UniqueConstraint;
-
 @Entity
 @SequenceGenerator(name="usuario_seq", sequenceName = "usuario_sequence", allocationSize = 1)
 public class Usuario implements UserDetails {
@@ -74,6 +59,15 @@ public class Usuario implements UserDetails {
 	
 	public String getToken() {
 		return token;
+	}
+	
+	public void setRoles(List<Role> roles) {
+		this.roles = roles;
+	}
+
+	
+	public List<Role> getRoles() {
+		return roles;
 	}
 
 	public Long getId() {
