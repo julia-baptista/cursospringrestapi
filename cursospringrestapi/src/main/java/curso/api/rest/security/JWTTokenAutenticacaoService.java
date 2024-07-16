@@ -50,14 +50,19 @@ public class JWTTokenAutenticacaoService {
 		response.addHeader(HEADER_STRING, token); /*Authorization: Bearer 87878we8we787w8e78w78e78w7e87w*/
 		
 		/*Salva o token no banco de dados*/
-	    Usuario usuario = ApplicationContextLoad.getApplicationContext()
-	                        .getBean(UsuarioRepository.class).findUserByLogin(username);
-	    
-	    if (usuario != null) {
-	        usuario.setToken(JWT); // Salva o token sem o prefixo "Bearer"
-	        ApplicationContextLoad.getApplicationContext()
-	            .getBean(UsuarioRepository.class).save(usuario);
-	    }
+//	    Usuario usuario = ApplicationContextLoad.getApplicationContext()
+//	                        .getBean(UsuarioRepository.class).findUserByLogin(username);
+//	    
+//	    if (usuario != null) {
+//	        usuario.setToken(JWT); // Salva o token sem o prefixo "Bearer"
+//	        ApplicationContextLoad.getApplicationContext()
+//	            .getBean(UsuarioRepository.class).save(usuario);
+//	    }
+		
+		ApplicationContextLoad.getApplicationContext()
+		.getBean(UsuarioRepository.class).atualizaTokenUser(JWT, username);
+		
+		
 		
 		/*Liberando resposta para portas diferentes que usam a API ou caso clientes web*/
 		 liberacaoCors(response);
@@ -75,38 +80,46 @@ public class JWTTokenAutenticacaoService {
 		
 		String token = request.getHeader(HEADER_STRING);
 		
-		if (token != null) {
+		try{
 			
-			String tokenLimpo = token.replace(TOKEN_PREFIX, "").trim();
-			
-			/*Faz a validação do token do usuário na requisição*/
-			String user = Jwts.parser().setSigningKey(SECRET) /*Bearer 87878we8we787w8e78w78e78w7e87w*/
-								.parseClaimsJws(tokenLimpo) /*87878we8we787w8e78w78e78w7e87w*/
-								.getBody().getSubject(); /*João Silva*/
-			if (user != null) {
+			if (token != null) {
 				
-				Usuario usuario = ApplicationContextLoad.getApplicationContext()
-						        .getBean(UsuarioRepository.class).findUserByLogin(user);
+				String tokenLimpo = token.replace(TOKEN_PREFIX, "").trim();
 				
-				if (usuario != null) {
+				/*Faz a validação do token do usuário na requisição*/
+				String user = Jwts.parser().setSigningKey(SECRET) /*Bearer 87878we8we787w8e78w78e78w7e87w*/
+						.parseClaimsJws(tokenLimpo) /*87878we8we787w8e78w78e78w7e87w*/
+						.getBody().getSubject(); /*João Silva*/
+				if (user != null) {
 					
-					if (tokenLimpo.equalsIgnoreCase(usuario.getToken())) {
+					Usuario usuario = ApplicationContextLoad.getApplicationContext()
+							.getBean(UsuarioRepository.class).findUserByLogin(user);
 					
-						return new UsernamePasswordAuthenticationToken(
-								usuario.getLogin(), 
-								usuario.getSenha(),
-								usuario.getAuthorities());
-				  }
+					if (usuario != null) {
+						
+						if (tokenLimpo.equalsIgnoreCase(usuario.getToken())) {
+							
+							return new UsernamePasswordAuthenticationToken(
+									usuario.getLogin(), 
+									usuario.getSenha(),
+									usuario.getAuthorities());
+						}
+					}
 				}
+				
 			}
 			
+		} catch(io.jsonwebtoken.ExpiredJwtException e) {
+			try {
+				response.getOutputStream().println("Seu TOKEN está expirado. Faça login ou informe um novo TOKEN para autenticação.");
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
 		}
-	
+			
 		liberacaoCors(response);
 		return null; /*Não autorizado*/
-		
-		
-		
+				
 		//Resumo:
 //		O token é extraído do cabeçalho HTTP.
 //		O prefixo "Bearer" é removido.
@@ -117,19 +130,22 @@ public class JWTTokenAutenticacaoService {
 	
 	private void liberacaoCors(HttpServletResponse response) {
 
+		/*Permite que recursos sejam solicitados a partir de qualquer origem, ou seja, qualquer domínio pode acessar a API.*/
 		if (response.getHeader("Access-Control-Allow-Origin") == null) {
 			response.addHeader("Access-Control-Allow-Origin", "*");
 		}
 		
+		/*Especifica os cabeçalhos que podem ser usados durante a solicitação real. Aqui, estamos permitindo todos os cabeçalhos (*)*/
 		if (response.getHeader("Access-Control-Allow-Headers") == null) {
 			response.addHeader("Access-Control-Allow-Headers", "*");
 		}
 		
-		
+		/*Permite que o cliente envie qualquer cabeçalho em suas requisições.*/
 		if (response.getHeader("Access-Control-Request-Headers") == null) {
 			response.addHeader("Access-Control-Request-Headers", "*");
 		}
 		
+		/* Especifica os métodos HTTP permitidos ao acessar o recurso. Aqui, todos os métodos são permitidos (*), como GET, POST, PUT, DELETE, etc.*/
 		if(response.getHeader("Access-Control-Allow-Methods") == null) {
 			response.addHeader("Access-Control-Allow-Methods", "*");
 		}

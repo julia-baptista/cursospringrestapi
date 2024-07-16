@@ -2,6 +2,7 @@ package curso.api.rest.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 // import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -35,6 +36,11 @@ public class WebConfigSecurity extends WebSecurityConfigurerAdapter {
 		    .authorizeRequests()
 		        .antMatchers("/").permitAll()
 		        .antMatchers("/index").permitAll()
+		        /*Liberação de Cors*/
+		        /*Pré-voos CORS: Quando um cliente (geralmente um navegador) deseja fazer uma solicitação
+		        * entre diferentes origens (Cross-Origin Resource Sharing - CORS), ele envia uma solicitação
+		        * OPTIONS para verificar quais métodos HTTP a origem do servidor permite.*/
+		        .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 		    /*Qualquer outra requisição deve ser autenticada.*/
 		    .anyRequest().authenticated()
 		    /*Configura a URL de logout (/logout) e redireciona para /index após o logout e invalida o usuário*/

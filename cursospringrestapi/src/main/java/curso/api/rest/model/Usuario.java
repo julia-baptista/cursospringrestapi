@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Objects;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.ConstraintMode;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -22,6 +23,8 @@ import javax.persistence.UniqueConstraint;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @SequenceGenerator(name="usuario_seq", sequenceName = "usuario_sequence", allocationSize = 1)
 public class Usuario implements UserDetails {
@@ -32,11 +35,14 @@ public class Usuario implements UserDetails {
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "usuario_seq")
 	private Long id;
 	
+	@Column(unique = true)
 	private String login;
 	
 	private String senha;
 	
 	private String nome;
+	
+	private String cpf;
 	
 	@OneToMany(mappedBy = "usuario", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	private List<Telefone> telefones = new ArrayList<Telefone>();
@@ -53,22 +59,22 @@ public class Usuario implements UserDetails {
 	
 	private String token = "";
 	
-	public void setToken(String token) {
-		this.token = token;
-	}
+	private String cep;
 	
-	public String getToken() {
-		return token;
-	}
+	private String logradouro;
 	
-	public void setRoles(List<Role> roles) {
-		this.roles = roles;
-	}
+	private String complemento;
+	
+	private String bairro;
+	
+	private String localidade;
+	
+	private String uf;
+	
+	
 
 	
-	public List<Role> getRoles() {
-		return roles;
-	}
+
 
 	public Long getId() {
 		return id;
@@ -106,10 +112,81 @@ public class Usuario implements UserDetails {
 		return telefones;
 	}
 	
+	public String getCpf() {
+		return cpf;
+	}
+	
+	public void setCpf(String cpf) {
+		this.cpf = cpf;
+	}
+	
 	public void setTelefones(List<Telefone> telefones) {
 		this.telefones = telefones;
 	}
+		
+	public void setRoles(List<Role> roles) {
+		this.roles = roles;
+	}
+	
+	public List<Role> getRoles() {
+		return roles;
+	}
+	
+	public void setToken(String token) {
+		this.token = token;
+	}
+	
+	public String getToken() {
+		return token;
+	}
 
+	public String getCep() {
+		return cep;
+	}
+
+	public void setCep(String cep) {
+		this.cep = cep;
+	}
+
+	public String getLogradouro() {
+		return logradouro;
+	}
+
+	public void setLogradouro(String logradouro) {
+		this.logradouro = logradouro;
+	}
+
+	public String getComplemento() {
+		return complemento;
+	}
+
+	public void setComplemento(String complemento) {
+		this.complemento = complemento;
+	}
+
+	public String getBairro() {
+		return bairro;
+	}
+
+	public void setBairro(String bairro) {
+		this.bairro = bairro;
+	}
+
+	public String getLocalidade() {
+		return localidade;
+	}
+
+	public void setLocalidade(String localidade) {
+		this.localidade = localidade;
+	}
+
+	public String getUf() {
+		return uf;
+	}
+
+	public void setUf(String uf) {
+		this.uf = uf;
+	}
 
 	@Override
 	public int hashCode() {
@@ -134,31 +211,37 @@ public class Usuario implements UserDetails {
 		return roles;
 	}
 
+	@JsonIgnore
 	@Override
 	public String getPassword() {
 		return this.senha;
 	}
 
+	@JsonIgnore
 	@Override
 	public String getUsername() {
 		return this.login;
 	}
 	
+	@JsonIgnore
 	@Override
 	public boolean isAccountNonExpired() {
 		return true;
 	}
 	
+	@JsonIgnore
 	@Override
 	public boolean isAccountNonLocked() {
 		return true;
 	}
 	
+	@JsonIgnore
 	@Override
 	public boolean isCredentialsNonExpired() {
 		return true;
 	}
 
+	@JsonIgnore
 	@Override
 	public boolean isEnabled() {
 		return true;

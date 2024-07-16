@@ -82,7 +82,7 @@
 		</dependency>
 
 
-		<!-- https://mvnrepository.com/artifact/com.zaxxer/HikariCP -->
+		<!-- Para configurar o Pool de conexões -->
 		<dependency>
 			<groupId>com.zaxxer</groupId>
 			<artifactId>HikariCP</artifactId>
@@ -92,6 +92,12 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-cache</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>com.google.code.gson</groupId>
+			<artifactId>gson</artifactId>
+			<version>2.11.0</version>
 		</dependency>
 
 
@@ -107,3 +113,4 @@
 	</build>
 
 </project>
+
