@@ -13,6 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -31,7 +34,9 @@ import com.google.gson.Gson;
 
 import curso.api.rest.model.Usuario;
 import curso.api.rest.model.UsuarioDTO;
+import curso.api.rest.repository.TelefoneRepository;
 import curso.api.rest.repository.UsuarioRepository;
+import curso.api.rest.service.ImplementacaoUserDetailsService;
 
 
 @CrossOrigin(origins = "*")
@@ -41,6 +46,12 @@ public class IndexController {
 	
 	@Autowired
 	private UsuarioRepository usuarioRepository;
+	
+	@Autowired
+	private TelefoneRepository telefoneRepository;
+	
+	@Autowired
+	private ImplementacaoUserDetailsService implementacaoUserDetailsService;
 	
 //	@GetMapping(value ="/")
 //	public ResponseEntity init(@RequestParam (value = "nome", required = true, defaultValue = "joão nome default") String nome) {
@@ -66,28 +77,67 @@ public class IndexController {
 	
 	@GetMapping(value ="/v2/{id}", produces = "application/json")
 	//@GetMapping(value ="/{id}", produces = "application/json" headers = "X-API_Version=v2")
-	public ResponseEntity<UsuarioDTO> usuarioV2(@PathVariable(value = "id") Long id) {
+	public ResponseEntity<Usuario> usuarioV2(@PathVariable(value = "id") Long id) {
 		
 		Optional<Usuario> usuario = usuarioRepository.findById(id);
 		System.out.println("Executando versão 2");
-		return new ResponseEntity<UsuarioDTO>(new UsuarioDTO(usuario.get()), HttpStatus.OK);
+		return new ResponseEntity<Usuario>(usuario.get(), HttpStatus.OK);
 	}
+	
+	@GetMapping(value ="/usuarioPorNome/{nome}", produces = "application/json")
+	@CachePut("cacheusuarios")
+	public ResponseEntity<Page<Usuario>> usuarioPorNome(@PathVariable("nome") String nome) throws InterruptedException {
+		
+		PageRequest pageRequest = null;
+		Page<Usuario> list = null;
+		
+		if (nome == null || nome.trim().isEmpty() || nome.equalsIgnoreCase("undefined")) {
+			pageRequest = PageRequest.of(0, 5, Sort.by("nome"));
+			list = usuarioRepository.findAll(pageRequest);
+		} else {
+			pageRequest = PageRequest.of(0, 5, Sort.by("nome"));
+			list = usuarioRepository.findUserByNamePage(nome, pageRequest);
+		}
+		
+		// List<Usuario> list = usuarioRepository.findUserByNome("%" + nome + "%");
+		
+		System.out.println("list: " + list);
+		
+		return new ResponseEntity<Page<Usuario>>(list, HttpStatus.OK);
+	}
+	
 	
 	
 	/*Vamos supor que o carregamento de usuários seja um processo lento
 	 * e queremos controlar ele com cache para agilizar o processo*/
-	@CrossOrigin(origins = "*")
 	@GetMapping(value ="/", produces = "application/json")
 	//@Cacheable("cacheusuarios")
 	@CacheEvict(value="cacheusuarios", allEntries = true)
 	@CachePut("cacheusuarios")
-	public ResponseEntity<List<Usuario>> usuarios() throws InterruptedException {
+	public ResponseEntity<Page<Usuario>> usuarios() throws InterruptedException {
 		
-		List<Usuario> list = (List<Usuario>) usuarioRepository.findAll();
+		PageRequest page = PageRequest.of(0, 5, Sort.by("nome"));
+		
+		Page<Usuario> list = usuarioRepository.findAll(page);
+		
 		
 		// Thread.sleep(6000);
 		
-		return new ResponseEntity<List<Usuario>>(list, HttpStatus.OK);
+		return new ResponseEntity<Page<Usuario>>(list, HttpStatus.OK);
+	}
+	
+	@GetMapping(value ="/page/{pagina}", produces = "application/json")
+	@CachePut("cacheusuarios")
+	public ResponseEntity<Page<Usuario>> usuarioPagina(@PathVariable("pagina") int pagina) throws InterruptedException {
+		
+		PageRequest page = PageRequest.of(pagina, 5, Sort.by("nome"));
+		
+		Page<Usuario> list = usuarioRepository.findAll(page);
+		
+		
+		// Thread.sleep(6000);
+		
+		return new ResponseEntity<Page<Usuario>>(list, HttpStatus.OK);
 	}
 	
 	
@@ -99,25 +149,24 @@ public class IndexController {
 		}
 		
 		//** Consumindo API publica externa
-		URL url = new URL("https://viacep.com.br/ws/" + usuario.getCep() + "/json/");
-		URLConnection connection = url.openConnection();
-		InputStream is = connection.getInputStream();
-		BufferedReader br = new BufferedReader(new InputStreamReader(is, "UTF-8"));
-		
-		String cep = "";
-		StringBuilder jsonCep = new StringBuilder();
-		
-		while((cep = br.readLine()) != null) {
-			jsonCep.append(cep);
-		}
-		
-		Usuario userAuxiliar = new Gson().fromJson(jsonCep.toString(), Usuario.class);
-		usuario.setCep(userAuxiliar.getCep());
-		usuario.setLogradouro(userAuxiliar.getLogradouro());
-		usuario.setComplemento(userAuxiliar.getComplemento());
-		usuario.setBairro(userAuxiliar.getBairro());
-		usuario.setLocalidade(userAuxiliar.getLocalidade());
-		usuario.setUf(userAuxiliar.getUf());
+		/*
+		 * URL url = new URL("https://viacep.com.br/ws/" + usuario.getCep() + "/json/");
+		 * URLConnection connection = url.openConnection(); InputStream is =
+		 * connection.getInputStream(); BufferedReader br = new BufferedReader(new
+		 * InputStreamReader(is, "UTF-8"));
+		 * 
+		 * String cep = ""; StringBuilder jsonCep = new StringBuilder();
+		 * 
+		 * while((cep = br.readLine()) != null) { jsonCep.append(cep); }
+		 * 
+		 * Usuario userAuxiliar = new Gson().fromJson(jsonCep.toString(),
+		 * Usuario.class); usuario.setCep(userAuxiliar.getCep());
+		 * usuario.setLogradouro(userAuxiliar.getLogradouro());
+		 * usuario.setComplemento(userAuxiliar.getComplemento());
+		 * usuario.setBairro(userAuxiliar.getBairro());
+		 * usuario.setLocalidade(userAuxiliar.getLocalidade());
+		 * usuario.setUf(userAuxiliar.getUf());
+		 */
 		
 		
 		
@@ -128,6 +177,10 @@ public class IndexController {
 		usuario.setSenha(senhacriptografada);
 		
 		Usuario usuarioSalvo = usuarioRepository.save(usuario);
+		
+		implementacaoUserDetailsService.insereAcessoPadrao(usuarioSalvo.getId());
+		
+		
 		
 		return new ResponseEntity<Usuario>(usuarioSalvo, HttpStatus.OK);
 		
@@ -142,14 +195,14 @@ public class IndexController {
 		
 		//Optional<Usuario> usuarioBanco = usuarioRepository.findById(usuario.getId());
 		
-		Usuario userTemporario = usuarioRepository.findUserByLogin(usuario.getLogin());
+		Optional<Usuario> userTemporario = usuarioRepository.findById(usuario.getId());
 		
 //		if(usuarioBanco.isPresent() && !usuarioBanco.get().getSenha().equals(usuario.getSenha())) {
 //			String senhacriptografada = new BCryptPasswordEncoder().encode(usuario.getSenha());
 //			usuario.setSenha(senhacriptografada);
 //		}
 		
-		if(!userTemporario.getSenha().equals(usuario.getSenha())) {
+		if(!userTemporario.get().getSenha().equals(usuario.getSenha())) {
 			String senhacriptografada = new BCryptPasswordEncoder().encode(usuario.getSenha());
 			usuario.setSenha(senhacriptografada);
 		}
@@ -169,8 +222,13 @@ public class IndexController {
 	}
 	
 	
-	
-	
+	@DeleteMapping(value = "/removerTelefone/{id}")
+	public ResponseEntity<String>  deleteTelefone(@PathVariable(value="id") Long id) {
+		
+		telefoneRepository.deleteById(id);
+		
+		return ResponseEntity.status(HttpStatus.ACCEPTED).body("ok");
+	} 
 	
 
 }

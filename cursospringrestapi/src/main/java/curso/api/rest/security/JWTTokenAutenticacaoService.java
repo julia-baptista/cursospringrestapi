@@ -82,6 +82,8 @@ public class JWTTokenAutenticacaoService {
 		
 		try{
 			
+			liberacaoCors(response);
+			
 			if (token != null) {
 				
 				String tokenLimpo = token.replace(TOKEN_PREFIX, "").trim();
@@ -118,6 +120,7 @@ public class JWTTokenAutenticacaoService {
 		}
 			
 		liberacaoCors(response);
+		
 		return null; /*Não autorizado*/
 				
 		//Resumo:

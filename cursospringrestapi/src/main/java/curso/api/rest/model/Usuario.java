@@ -19,7 +19,9 @@ import javax.persistence.JoinTable;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.UniqueConstraint;
+import javax.validation.constraints.NotBlank;
 
+import org.hibernate.validator.constraints.br.CPF;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -36,12 +38,16 @@ public class Usuario implements UserDetails {
 	private Long id;
 	
 	@Column(unique = true)
+	@NotBlank(message = "Login é obrigatório")
 	private String login;
 	
+	@NotBlank(message = "Senha é obrigatória")
 	private String senha;
 	
+	@NotBlank(message = "Nome é obrigatório")
 	private String nome;
 	
+	@CPF(message = "Cpf inválido")
 	private String cpf;
 	
 	@OneToMany(mappedBy = "usuario", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -55,7 +61,7 @@ public class Usuario implements UserDetails {
 			   
 			   inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id", table = "role", unique = false, insertable = false, updatable = false,
 			   foreignKey = @ForeignKey(name="role_fk", value = ConstraintMode.CONSTRAINT)))
-	private List<Role> roles; 
+	private List<Role> roles = new ArrayList<Role>(); 
 	
 	private String token = "";
 	
