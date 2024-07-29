@@ -212,8 +212,9 @@ public class Usuario implements UserDetails {
 	}
 
 	/*São os acessos do usuario*/
+	@JsonIgnore
 	@Override
-	public Collection<? extends GrantedAuthority> getAuthorities() {
+	public Collection<Role> getAuthorities() {
 		return roles;
 	}
 

@@ -6,8 +6,11 @@ import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
@@ -32,6 +35,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.google.gson.Gson;
 
+import curso.api.rest.model.Role;
 import curso.api.rest.model.Usuario;
 import curso.api.rest.model.UsuarioDTO;
 import curso.api.rest.repository.TelefoneRepository;
@@ -96,6 +100,28 @@ public class IndexController {
 			list = usuarioRepository.findAll(pageRequest);
 		} else {
 			pageRequest = PageRequest.of(0, 5, Sort.by("nome"));
+			list = usuarioRepository.findUserByNamePage(nome, pageRequest);
+		}
+		
+		// List<Usuario> list = usuarioRepository.findUserByNome("%" + nome + "%");
+		
+		System.out.println("list: " + list);
+		
+		return new ResponseEntity<Page<Usuario>>(list, HttpStatus.OK);
+	}
+	
+	@GetMapping(value ="/usuarioPorNome/{nome}/page/{page}", produces = "application/json")
+	@CachePut("cacheusuarios")
+	public ResponseEntity<Page<Usuario>> usuarioPorNomePage(@PathVariable("nome") String nome, @PathVariable("page") int page) throws InterruptedException {
+		
+		PageRequest pageRequest = null;
+		Page<Usuario> list = null;
+		
+		if (nome == null || nome.trim().isEmpty() || nome.equalsIgnoreCase("undefined")) {
+			pageRequest = PageRequest.of(page, 5, Sort.by("nome"));
+			list = usuarioRepository.findAll(pageRequest);
+		} else {
+			pageRequest = PageRequest.of(page, 5, Sort.by("nome"));
 			list = usuarioRepository.findUserByNamePage(nome, pageRequest);
 		}
 		
@@ -196,6 +222,7 @@ public class IndexController {
 		//Optional<Usuario> usuarioBanco = usuarioRepository.findById(usuario.getId());
 		
 		Optional<Usuario> userTemporario = usuarioRepository.findById(usuario.getId());
+		Usuario existingUser = userTemporario.get();
 		
 //		if(usuarioBanco.isPresent() && !usuarioBanco.get().getSenha().equals(usuario.getSenha())) {
 //			String senhacriptografada = new BCryptPasswordEncoder().encode(usuario.getSenha());
@@ -206,6 +233,20 @@ public class IndexController {
 			String senhacriptografada = new BCryptPasswordEncoder().encode(usuario.getSenha());
 			usuario.setSenha(senhacriptografada);
 		}
+		
+		// Handle roles
+		/*
+		 * if (usuario.getRoles() == null || usuario.getRoles().isEmpty()) {
+		 * usuario.setRoles(existingUser.getRoles()); } else { List<Role> existingRoles
+		 * = new ArrayList<>(existingUser.getRoles()); List<Role> incomingRoles = new
+		 * ArrayList<>(usuario.getRoles());
+		 * 
+		 * Add roles from incoming request that are not in the existing roles for (Role
+		 * role : incomingRoles) { if (!existingRoles.contains(role)) {
+		 * existingRoles.add(role); } }
+		 * 
+		 * usuario.setRoles(existingRoles); }
+		 */
 	
 		Usuario usuarioSalvo = usuarioRepository.save(usuario);
 		
