@@ -2,6 +2,7 @@ package curso.api.rest.model;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -61,7 +62,9 @@ public class Usuario implements UserDetails {
 			   
 			   inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id", table = "role", unique = false, insertable = false, updatable = false,
 			   foreignKey = @ForeignKey(name="role_fk", value = ConstraintMode.CONSTRAINT)))
-	private List<Role> roles = new ArrayList<Role>(); 
+	private List<Role> roles = new ArrayList<Role>();
+	
+	private Date dataNascimento;
 	
 	private String token = "";
 	
@@ -136,6 +139,14 @@ public class Usuario implements UserDetails {
 	
 	public List<Role> getRoles() {
 		return roles;
+	}
+	
+	public void setDataNascimento(Date dataNascimento) {
+		this.dataNascimento = dataNascimento;
+	}
+	
+	public Date getDataNascimento() {
+		return dataNascimento;
 	}
 	
 	public void setToken(String token) {
@@ -214,7 +225,7 @@ public class Usuario implements UserDetails {
 	/*São os acessos do usuario*/
 	@JsonIgnore
 	@Override
-	public Collection<Role> getAuthorities() {
+	public Collection<? extends GrantedAuthority> getAuthorities() {
 		return roles;
 	}
 

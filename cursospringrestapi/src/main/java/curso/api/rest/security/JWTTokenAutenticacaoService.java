@@ -50,17 +50,17 @@ public class JWTTokenAutenticacaoService {
 		response.addHeader(HEADER_STRING, token); /*Authorization: Bearer 87878we8we787w8e78w78e78w7e87w*/
 		
 		/*Salva o token no banco de dados*/
-//	    Usuario usuario = ApplicationContextLoad.getApplicationContext()
-//	                        .getBean(UsuarioRepository.class).findUserByLogin(username);
-//	    
-//	    if (usuario != null) {
-//	        usuario.setToken(JWT); // Salva o token sem o prefixo "Bearer"
-//	        ApplicationContextLoad.getApplicationContext()
-//	            .getBean(UsuarioRepository.class).save(usuario);
-//	    }
+	    Usuario usuario = ApplicationContextLoad.getApplicationContext()
+	                        .getBean(UsuarioRepository.class).findUserByLogin(username);
+	    
+	    if (usuario != null) {
+	        usuario.setToken(JWT); // Salva o token sem o prefixo "Bearer"
+	        ApplicationContextLoad.getApplicationContext()
+	            .getBean(UsuarioRepository.class).save(usuario);
+	    }
 		
-		ApplicationContextLoad.getApplicationContext()
-		.getBean(UsuarioRepository.class).atualizaTokenUser(JWT, username);
+//		ApplicationContextLoad.getApplicationContext()
+//		.getBean(UsuarioRepository.class).atualizaTokenUser(JWT, username);
 		
 		
 		

@@ -88,49 +88,92 @@ public class IndexController {
 		return new ResponseEntity<Usuario>(usuario.get(), HttpStatus.OK);
 	}
 	
-	@GetMapping(value ="/usuarioPorNome/{nome}", produces = "application/json")
-	@CachePut("cacheusuarios")
-	public ResponseEntity<Page<Usuario>> usuarioPorNome(@PathVariable("nome") String nome) throws InterruptedException {
-		
-		PageRequest pageRequest = null;
-		Page<Usuario> list = null;
-		
-		if (nome == null || nome.trim().isEmpty() || nome.equalsIgnoreCase("undefined")) {
-			pageRequest = PageRequest.of(0, 5, Sort.by("nome"));
-			list = usuarioRepository.findAll(pageRequest);
-		} else {
-			pageRequest = PageRequest.of(0, 5, Sort.by("nome"));
-			list = usuarioRepository.findUserByNamePage(nome, pageRequest);
-		}
-		
-		// List<Usuario> list = usuarioRepository.findUserByNome("%" + nome + "%");
-		
-		System.out.println("list: " + list);
-		
-		return new ResponseEntity<Page<Usuario>>(list, HttpStatus.OK);
-	}
+	/*
+	 * @GetMapping(value ="/usuarioPorNome/{nome}", produces = "application/json")
+	 * 
+	 * @CachePut("cacheusuarios") public ResponseEntity<Page<Usuario>>
+	 * usuarioPorNome(@PathVariable("nome") String nome) throws InterruptedException
+	 * {
+	 * 
+	 * PageRequest pageRequest = null; Page<Usuario> list = null;
+	 * 
+	 * if (nome == null || nome.trim().isEmpty() ||
+	 * nome.equalsIgnoreCase("undefined")) { pageRequest = PageRequest.of(0, 5,
+	 * Sort.by("nome")); list = usuarioRepository.findAll(pageRequest); } else {
+	 * pageRequest = PageRequest.of(0, 5, Sort.by("nome")); list =
+	 * usuarioRepository.findUserByNamePage(nome, pageRequest); }
+	 * 
+	 * // List<Usuario> list = usuarioRepository.findUserByNome("%" + nome + "%");
+	 * 
+	 * System.out.println("list: " + list);
+	 * 
+	 * return new ResponseEntity<Page<Usuario>>(list, HttpStatus.OK); }
+	 */
 	
-	@GetMapping(value ="/usuarioPorNome/{nome}/page/{page}", produces = "application/json")
-	@CachePut("cacheusuarios")
-	public ResponseEntity<Page<Usuario>> usuarioPorNomePage(@PathVariable("nome") String nome, @PathVariable("page") int page) throws InterruptedException {
-		
-		PageRequest pageRequest = null;
-		Page<Usuario> list = null;
-		
-		if (nome == null || nome.trim().isEmpty() || nome.equalsIgnoreCase("undefined")) {
-			pageRequest = PageRequest.of(page, 5, Sort.by("nome"));
-			list = usuarioRepository.findAll(pageRequest);
-		} else {
-			pageRequest = PageRequest.of(page, 5, Sort.by("nome"));
-			list = usuarioRepository.findUserByNamePage(nome, pageRequest);
-		}
-		
-		// List<Usuario> list = usuarioRepository.findUserByNome("%" + nome + "%");
-		
-		System.out.println("list: " + list);
-		
-		return new ResponseEntity<Page<Usuario>>(list, HttpStatus.OK);
-	}
+	@GetMapping(value = "/usuarioPorNome/{nome}", produces = "application/json")
+    @CachePut("cacheusuarios")
+    public ResponseEntity<Page<Usuario>> usuarioPorNome(@PathVariable("nome") String nome) throws InterruptedException {
+
+        PageRequest pageRequest = null;
+        Page<Usuario> list = null;
+
+        if (nome == null || (nome != null && nome.trim().isEmpty())
+                || nome.equalsIgnoreCase("undefined")) {
+
+            pageRequest = PageRequest.of(0, 5, Sort.by("nome"));
+            list = usuarioRepository.findAll(pageRequest);
+        } else {
+            pageRequest = PageRequest.of(0, 5, Sort.by("nome"));
+            list = usuarioRepository.findUserByNamePage(nome, pageRequest);
+        }
+
+        return new ResponseEntity<Page<Usuario>>(list, HttpStatus.OK);
+    }
+
+	
+	/*
+	 * @GetMapping(value ="/usuarioPorNomePage/{nome}/page/{page}", produces =
+	 * "application/json")
+	 * 
+	 * @CachePut("cacheusuarios") public ResponseEntity<Page<Usuario>>
+	 * usuarioPorNomePage(@PathVariable("nome") String nome, @PathVariable("page")
+	 * int page) throws InterruptedException {
+	 * 
+	 * PageRequest pageRequest = null; Page<Usuario> list = null;
+	 * 
+	 * if (nome == null || nome.trim().isEmpty() ||
+	 * nome.equalsIgnoreCase("undefined")) { pageRequest = PageRequest.of(page, 5,
+	 * Sort.by("nome")); list = usuarioRepository.findAll(pageRequest); } else {
+	 * pageRequest = PageRequest.of(page, 5, Sort.by("nome")); list =
+	 * usuarioRepository.findUserByNamePage(nome, pageRequest); }
+	 * 
+	 * // List<Usuario> list = usuarioRepository.findUserByNome("%" + nome + "%");
+	 * 
+	 * System.out.println("list: " + list);
+	 * 
+	 * return new ResponseEntity<Page<Usuario>>(list, HttpStatus.OK); }
+	 */
+	
+	@GetMapping(value = "/usuarioPorNomePage/{nome}/page/{page}", produces = "application/json")
+    @CachePut("cacheusuarios")
+    public ResponseEntity<Page<Usuario>> usuarioPorNomePage(@PathVariable("nome") String nome,
+            @PathVariable("page") int page) throws InterruptedException {
+
+        PageRequest pageRequest = null;
+        Page<Usuario> list = null;
+
+        if (nome == null || (nome != null && nome.trim().isEmpty())
+                 || nome.equalsIgnoreCase("undefined")) {
+
+            pageRequest = PageRequest.of(page, 5, Sort.by("nome"));
+            list = usuarioRepository.findAll(pageRequest);
+        } else {
+            pageRequest = PageRequest.of(page, 5, Sort.by("nome"));
+            list = usuarioRepository.findUserByNamePage(nome, pageRequest);
+        }
+
+        return new ResponseEntity<Page<Usuario>>(list, HttpStatus.OK);
+    }
 	
 	
 	
