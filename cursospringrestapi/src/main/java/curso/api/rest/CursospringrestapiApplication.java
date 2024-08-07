@@ -42,6 +42,14 @@ public class CursospringrestapiApplication implements WebMvcConfigurer {
 		.allowedMethods("POST", "PUT", "DELETE", "GET")
 		.allowedOrigins("*");
 		
+		registry.addMapping("/profissao/**")
+		.allowedMethods("POST", "PUT", "DELETE", "GET")
+		.allowedOrigins("*");
+		
+		registry.addMapping("/recuperar/**")
+		.allowedMethods("POST", "PUT", "DELETE", "GET")
+		.allowedOrigins("*");
+		
 		
 	}
 

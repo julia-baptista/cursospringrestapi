@@ -1,5 +1,6 @@
 package curso.api.rest.model;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -17,15 +18,21 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotBlank;
 
 import org.hibernate.validator.constraints.br.CPF;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.format.annotation.DateTimeFormat.ISO;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
@@ -64,7 +71,16 @@ public class Usuario implements UserDetails {
 			   foreignKey = @ForeignKey(name="role_fk", value = ConstraintMode.CONSTRAINT)))
 	private List<Role> roles = new ArrayList<Role>();
 	
+	
+	@JsonFormat(pattern="dd/MM/yyyy") // formato do front
+	@Temporal(TemporalType.DATE) // formato a ser gravado no banco de dados
+	@DateTimeFormat(iso = ISO.DATE, pattern="dd/MM/yyyy") // como vem da tela para o backend
 	private Date dataNascimento;
+	
+	@ManyToOne
+	private Profissao profissao;
+	
+	private BigDecimal salario; 
 	
 	private String token = "";
 	
@@ -149,6 +165,22 @@ public class Usuario implements UserDetails {
 		return dataNascimento;
 	}
 	
+	public void setProfissao(Profissao profissao) {
+		this.profissao = profissao;
+	}
+	
+	public Profissao getProfissao() {
+		return profissao;
+	}
+	
+	public void setSalario(BigDecimal salario) {
+		this.salario = salario;
+	}
+	
+	public BigDecimal getSalario() {
+		return salario;
+	}
+	
 	public void setToken(String token) {
 		this.token = token;
 	}
@@ -225,7 +257,7 @@ public class Usuario implements UserDetails {
 	/*São os acessos do usuario*/
 	@JsonIgnore
 	@Override
-	public Collection<? extends GrantedAuthority> getAuthorities() {
+	public Collection<Role> getAuthorities() {
 		return roles;
 	}
 

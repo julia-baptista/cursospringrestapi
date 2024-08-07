@@ -41,7 +41,7 @@ public class WebConfigSecurity extends WebSecurityConfigurerAdapter {
 			.disable()
 		    .authorizeRequests()
 		        .antMatchers("/").permitAll()
-		        .antMatchers("/index").permitAll()
+		        .antMatchers("/index", "/recuperar/**").permitAll()
 		        /*Liberação de Cors*/
 		        /*Pré-voos CORS: Quando um cliente (geralmente um navegador) deseja fazer uma solicitação
 		        * entre diferentes origens (Cross-Origin Resource Sharing - CORS), ele envia uma solicitação
