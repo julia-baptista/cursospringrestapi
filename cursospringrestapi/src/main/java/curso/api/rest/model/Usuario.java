@@ -1,9 +1,9 @@
 package curso.api.rest.model;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -34,6 +34,10 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 
 @Entity
 @SequenceGenerator(name="usuario_seq", sequenceName = "usuario_sequence", allocationSize = 1)
@@ -71,11 +75,11 @@ public class Usuario implements UserDetails {
 			   foreignKey = @ForeignKey(name="role_fk", value = ConstraintMode.CONSTRAINT)))
 	private List<Role> roles = new ArrayList<Role>();
 	
-	
-	@JsonFormat(pattern="dd/MM/yyyy") // formato do front
-	@Temporal(TemporalType.DATE) // formato a ser gravado no banco de dados
-	@DateTimeFormat(iso = ISO.DATE, pattern="dd/MM/yyyy") // como vem da tela para o backend
-	private Date dataNascimento;
+	@JsonSerialize(using = LocalDateSerializer.class)
+	@JsonDeserialize(using = LocalDateDeserializer.class)
+	@JsonFormat(pattern="yyyy-MM-dd") // formato do front
+	@DateTimeFormat(pattern="yyyy-MM-dd") // como vem da tela para o backend
+	private LocalDate dataNascimento;
 	
 	@ManyToOne
 	private Profissao profissao;
@@ -157,11 +161,11 @@ public class Usuario implements UserDetails {
 		return roles;
 	}
 	
-	public void setDataNascimento(Date dataNascimento) {
+	public void setDataNascimento(LocalDate dataNascimento) {
 		this.dataNascimento = dataNascimento;
 	}
 	
-	public Date getDataNascimento() {
+	public LocalDate getDataNascimento() {
 		return dataNascimento;
 	}
 	
